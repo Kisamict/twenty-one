@@ -5,22 +5,21 @@ class Dealer < Player
     super
   end
 
-  def moves_logic
-    return "Взять карту" if self.score <= 10
-    if self.score > 10 && self.score < 15
-      take_more? ? (return "Пропустить ход") : (return "Взять карту")
-    else
-      return "Пропустить ход"
-    end
+  def take_card(card)
+    return puts "Дилер пропустил ход" if take_more? == false || super.nil?
+
+    puts "Дилер взял карту"
   end
 
   def hidden_cards
-    "Карты дилера: #{self.cards.map{|card| "*"}}"
+    puts "Карты дилера: #{ cards.map{ |card| "*" } }"
   end
 
   private
 
   def take_more?
-    rand(1..5) > 3 ? true : false
+    return true if score <= 10
+
+    (10..15).include?(score) && [0,1].sample.zero?
   end
 end

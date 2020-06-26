@@ -1,6 +1,6 @@
 class Player
-  attr_accessor :cards, :score
   attr_reader :name
+  attr_accessor :score, :cards
 
   def initialize(name)
     @name = name
@@ -9,19 +9,20 @@ class Player
   end
 
   def take_card(deck)
+    return if self.cards.length == 3
     card = deck.pop
-    @cards << card
+    cards << card
     count_score(card)
     card
   end
 
   def count_score(card)
     if card.to_i > 0
-      @score += card.to_i
+      self.score += card.to_i
     elsif card.include?("A")
-      @score <= 10 ? (@score += 11) : (@score += 1)
+      score <= 10 ? (self.score += 11) : (self.score += 1)
     else
-      @score += 10
+      self.score += 10
     end
   end
 
@@ -31,18 +32,12 @@ class Player
   end
 
   def show_cards
-    if self.name == "Дилер"
-      "Карты дилера: #{self.cards}"
+    if self.class == Dealer
+      puts "Карты дилера: #{cards}"
+      puts "Очки дилера: #{score}"
     else
-      "Ваши карты: #{self.cards}"
-    end
-  end
-
-  def show_score
-    if self.name == "Дилер"
-      "Очки дилера: #{self.score}"
-    else
-      "Ваши очки: #{self.score}"
+      puts "Ваши карты: #{cards}"
+      puts "Ваши очки: #{score}"
     end
   end
 end

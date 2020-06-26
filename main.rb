@@ -2,26 +2,33 @@ require_relative "requireable.rb"
 
 class Game
   def initialize
-    @player = create_user
+    @user = create_user
     @dealer = create_dealer
     @deck = create_deck
   end
 
   def call
-    puts greet_user
-    loop do
-      puts "Игра началась!"
-      deal_cards
-      puts @player.show_cards, @player.show_score
-      puts @dealer.hidden_cards
-      moves
-      break if exit?
-    end
+    game_interface
   end
 
   private
 
-  attr_accessor :move, :game_over
+  attr_accessor :game_over, :user, :dealer, :deck, :turn
+  attr_writer :game_result
+
+  def game_interface
+    puts greet_user
+
+    loop do
+      puts "---------------\n"\
+           "Игра началась!"
+      deal_cards
+      user.show_cards
+      dealer.hidden_cards
+      move
+      break if exit?
+    end
+  end
 
   def create_user
     print "Имя игрока: "
@@ -29,7 +36,7 @@ class Game
   end
 
   def greet_user
-    "Приветствую, #{@player.name}"
+    "Приветствую, #{user.name}!"
   end
 
   def create_dealer
@@ -37,31 +44,31 @@ class Game
   end
 
   def create_deck
-    Deck.new.cards
+    Deck.new
   end
 
   def deal_cards
-    2.times { @player.take_card(@deck); @dealer.take_card(@deck) }
+    2.times { user.take_card(deck.cards); dealer.take_card(deck.cards) }
   end
 
   def exit?
-    puts "1. Сыграть еще раз", "2. Выйти"
+    puts "1. Сыграть еще раз \n"\
+         "2. Выйти"
+
     input = gets.chomp.strip
-    input == "2" ? (true) : (refresh_stats; false)
+    return refresh_stats if input.to_i == 1
+
+    true
   end
 
-  def moves
-    @turn = [@player, @dealer].sample
+  def move
+    self.turn = [user, dealer].sample
+
     until game_over
-      @turn == @player ? user_move : dealer_move
-      break end_game if @player.cards.length == 3 && @dealer.cards.length == 3
-    end
-  end
+      turn == user ? user_move : dealer_move
 
-  def user_move
-    puts "Ваш ход"
-    puts user_interface
-    user_options
+      break end_game if user.cards.length == 3 && dealer.cards.length == 3
+    end
   end
 
   def user_interface
@@ -72,62 +79,73 @@ class Game
     ]
   end
 
+  def user_move
+    puts "Ваш ход"
+    puts user_interface
+    user_options
+
+    self.turn = dealer
+  end
+
   def dealer_move
-    puts "Ход Дилера!"
-    case @dealer.moves_logic
-    when "Взять карту"
-      return (@turn = @player; puts "Дилер пропустил ход") if @dealer.cards.length == 3
-      @dealer.take_card(@deck)
-      puts "Дилер взял карту"
-    when "Пропустить ход"
-      puts "Дилер пропустил ход"
-    end
-    puts @dealer.hidden_cards
-    @turn = @player
+    puts "Ход Дилера"
+    dealer.take_card(deck.cards)
+    dealer.hidden_cards
+
+    self.turn = user
   end
 
   def user_options
     case gets.chomp.strip
     when "1"
-      return puts "Вы не можете взять больше трех карт" if @player.cards.length == 3
-      puts "Вы взяли карту #{@player.take_card(@deck)}"
-      puts @player.show_score
+      user.take_card(deck.cards)
+      user.show_cards
     when "2"
       puts "Вы пропустили ход"
     when "3"
       end_game
     end
-    @turn = @dealer
   end
 
   def end_game
-    puts @player.show_cards, @player.show_score
-    puts "---"*10
-    puts @dealer.show_cards, @dealer.show_score
+    user.show_cards
+    puts "-----------"
+    dealer.show_cards
+    puts game_result
 
     self.game_over = true
-
-    return puts "НИЧЬЯ!" if draw?
-    return puts "ПОБЕДА!" if win?
-    return puts "ПОРАЖЕНИЕ.." if lose?
   end
 
-  def draw?
-    true if ((@player.score == @dealer.score) || (@player.score == 21 && @dealer.score == 21)) || (@dealer.score > 21 && @player.score > 21)
+  def game_result
+    if win?
+      self.game_result = "ПОБЕДА!"
+    elsif lose?
+      self.game_result = "ПОРАЖЕНИЕ!"
+    else
+      self.game_result = "НИЧЬЯ!"
+    end
+
+    @game_result
   end
 
   def win?
-    true if ((@player.score > @dealer.score) && (@player.score <= 21)) || (@dealer.score > 21) && (@player.score <= 21)
+    (
+      (user.score > dealer.score) && (user.score <= 21) ||
+      (dealer.score > 21) && (user.score <= 21)
+    )
   end
 
   def lose?
-    true if ((@player.score < @dealer.score) && (@dealer.score <= 21)) || (@player.score > 21) && (@dealer.score <= 21)
+    (
+      (user.score < dealer.score) && (dealer.score <= 21) ||
+      (user.score > 21) && (dealer.score <= 21)
+    )
   end
 
   def refresh_stats
-    @deck = create_deck
-    @dealer.refresh_stats
-    @player.refresh_stats
+    self.deck = create_deck
+    dealer.refresh_stats
+    user.refresh_stats
     self.game_over = false
   end
 end

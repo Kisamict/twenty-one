@@ -1,9 +1,18 @@
 class Deck
-  DECK = %w{2♦ 2♣ 2♠ 2♥ 3♦ 3♣ 3♠ 3♥ 4♦ 4♣ 4♠ 4♥ 5♦ 5♣ 5♠ 5♥ 6♦ 6♣ 6♠ 6♥ 7♦ 7♣ 7♠ 7♥ 8♦ 8♣ 8♠ 8♥ 9♦ 9♣ 9♠ 9♥ 10♦ 10♣ 10♠ 10♥ J♦ J♣ J♠ J♥ Q♦ Q♣ Q♠ Q♥ K♦ K♣ K♠ K♥ A♦ A♣ A♠ A♥}
+  CARDS = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"]
+  SUITS = ["\u{2660}", "\u{2663}", "\u{2665}", "\u{2666}"]
 
   attr_reader :cards
 
   def initialize
-    @cards = DECK.shuffle
+    @cards = build_deck
+  end
+
+  private
+
+  def build_deck
+    CARDS.collect do |card|
+      SUITS.map { |suit| card + suit }
+    end.flatten.shuffle
   end
 end
