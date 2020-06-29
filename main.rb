@@ -27,6 +27,7 @@ class Game
       dealer.hidden_cards
       move
       break if exit?
+      refresh_stats
     end
   end
 
@@ -55,10 +56,7 @@ class Game
     puts "1. Сыграть еще раз \n"\
          "2. Выйти"
 
-    input = gets.chomp.strip
-    return refresh_stats if input.to_i == 1
-
-    true
+    gets.chomp.to_i == 2
   end
 
   def move
@@ -82,23 +80,35 @@ class Game
   def user_move
     puts "Ваш ход"
     puts user_interface
-    user_options
+    user_actions
 
     self.turn = dealer
   end
 
+
   def dealer_move
-    puts "Ход Дилера"
-    dealer.take_card(deck.cards)
+    puts "Ход дилера"
+
+    case dealer.take_card(deck.cards)
+    when false, nil
+      puts "Пропустил ход"
+    else
+      puts "Дилер взял карту"
+    end
+
     dealer.hidden_cards
 
     self.turn = user
   end
 
-  def user_options
+  def user_actions
     case gets.chomp.strip
     when "1"
-      user.take_card(deck.cards)
+      if user.take_card(deck.cards)
+        puts "Вы взяли карту #{user.cards.last}"
+      else
+        puts "Вы не можете взять больше трех карт"
+      end
       user.show_cards
     when "2"
       puts "Вы пропустили ход"

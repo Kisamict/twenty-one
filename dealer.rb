@@ -5,20 +5,17 @@ class Dealer < Player
     super
   end
 
-  def take_card(card)
-    return puts "Дилер пропустил ход" if take_more? == false || super.nil?
-
-    puts "Дилер взял карту"
+  def show_cards
+    puts "Карты дилера: #{cards}"
+    puts "Очки дилера: #{score}"
   end
 
   def hidden_cards
     puts "Карты дилера: #{ cards.map{ |card| "*" } }"
   end
 
-  private
-
   def take_more?
-    return true if score <= 10
+    return true if score <= 10 || self.cards.length < 2
 
     (10..15).include?(score) && [0,1].sample.zero?
   end

@@ -10,6 +10,7 @@ class Player
 
   def take_card(deck)
     return if self.cards.length == 3
+    return if self.class == Dealer && self.take_more? == false
     card = deck.pop
     cards << card
     count_score(card)
@@ -29,15 +30,5 @@ class Player
   def refresh_stats
     self.cards = []
     self.score = 0
-  end
-
-  def show_cards
-    if self.class == Dealer
-      puts "Карты дилера: #{cards}"
-      puts "Очки дилера: #{score}"
-    else
-      puts "Ваши карты: #{cards}"
-      puts "Ваши очки: #{score}"
-    end
   end
 end
