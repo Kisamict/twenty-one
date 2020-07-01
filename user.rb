@@ -1,4 +1,7 @@
-require_relative "player.rb"
+# frozen_string_literal: true
+
+require_relative 'player.rb'
+
 class User < Player
   def show_cards
     puts "Ваши карты: #{cards}"

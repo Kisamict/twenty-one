@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Player
   attr_reader :name
   attr_accessor :score, :cards
@@ -9,8 +11,9 @@ class Player
   end
 
   def take_card(deck)
-    return if self.cards.length == 3
-    return if self.class == Dealer && self.take_more? == false
+    return if cards.length == 3
+    return if self.class == Dealer && take_more? == false
+
     card = deck.pop
     cards << card
     count_score(card)
@@ -18,9 +21,9 @@ class Player
   end
 
   def count_score(card)
-    if card.to_i > 0
+    if card.to_i.positive?
       self.score += card.to_i
-    elsif card.include?("A")
+    elsif card.include?('A')
       score <= 10 ? (self.score += 11) : (self.score += 1)
     else
       self.score += 10
